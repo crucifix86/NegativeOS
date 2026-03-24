@@ -313,7 +313,7 @@ ls output/x86_64/images/negativeos-x86_64.iso
 | Machine | Arch | Firmware | Notes |
 |---------|------|----------|-------|
 | Intel N95 Mini | x86_64 | UEFI | Alder Lake-N, Intel UHD iGPU (i915), NVMe — modern path test |
-| HP Laptop (XP/Vista era) | i686 or early x86_64 | Legacy BIOS | Reversible touchscreen, old WiFi — perfect i686 floor test |
+| HP Laptop (XP/Vista era) | i686 or early x86_64 | Early UEFI + BIOS | Early UEFI quirks (FAT16 ESP, GOP issues), touchscreen, old WiFi — specs TBD |
 | 2013 iMac (Iris 5100) | x86_64 | Apple EFI | Hold Option to boot. Broadcom WiFi needs fw-brcm80211. May need rEFInd if GRUB EFI fails |
 
 ---
