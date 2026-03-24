@@ -1,0 +1,13 @@
+Add explicit cast to fix GCC 14 -Wincompatible-pointer-types error.
+GCC 14 promotes this warning to an error by default. g_object_ref_sink()
+returns GObject* which must be explicitly cast to GtkAdjustment*.
+
+--- a/gtk/gtkcellrendererspin.c
++++ b/gtk/gtkcellrendererspin.c
+@@ -207,7 +207,7 @@ gtk_cell_renderer_spin_set_property (GObject      *object,
+
+       if (obj)
+-	priv->adjustment = g_object_ref_sink (obj);
++	priv->adjustment = (GtkAdjustment *) g_object_ref_sink (obj);
+       break;
+     case PROP_CLIMB_RATE:
