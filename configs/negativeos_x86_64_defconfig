@@ -62,7 +62,7 @@ BR2_PACKAGE_PIPEWIRE=y
 # Browser
 BR2_PACKAGE_PALEMOON=y
 
-# Developer tools (for Claude Code + general dev)
+# Developer tools
 BR2_PACKAGE_NODEJS=y
 BR2_PACKAGE_GIT=y
 BR2_PACKAGE_CURL=y
@@ -73,7 +73,8 @@ BR2_PACKAGE_LINUX_FIRMWARE=y
 BR2_PACKAGE_NDISWRAPPER=y
 
 # Build options
-BR2_OPTIMIZE_2=y
+# GCC 14 treats incompatible pointer types as errors — suppress for old packages
+BR2_TARGET_OPTIMIZATION="-O2 -Wno-incompatible-pointer-types -Wno-int-conversion"
 BR2_STRIP_strip=y
 BR2_TARGET_ROOTFS_SQUASHFS=y
 BR2_TARGET_ROOTFS_CPIO=y
