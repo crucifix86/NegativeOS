@@ -244,8 +244,10 @@ ls output/x86_64/images/negativeos-x86_64.iso
 ### Phase 1 — Base System
 - [x] Set up Buildroot environment (Buildroot 2024.11, BR2_EXTERNAL wired up)
 - [x] Configure i686 + x86_64 toolchains (glibc, configs written)
-- [x] Build minimal rootfs: kernel 6.12 LTS + BusyBox + runit (BUILD RUNNING)
-- [ ] Bootable console-only ISO (BIOS + UEFI hybrid) — waiting on build output
+- [x] Build minimal rootfs: kernel 6.12 LTS + BusyBox + runit ✓ COMPLETE
+- [x] Bootable hybrid ISO assembled: output/x86_64/images/negativeos-x86_64.iso (101MB) ✓
+- [x] Build fixes: host-heimdal LIB_crypt (54 Makefiles), kernel libelf-dev ✓
+- [ ] Verify boots in QEMU UEFI + BIOS VMs — NEXT STEP
 - [ ] Verify boots on P4 test hardware
 
 ### Phase 2 — Desktop Layer
@@ -255,7 +257,7 @@ ls output/x86_64/images/negativeos-x86_64.iso
 - [x] Add PipeWire audio (in defconfigs)
 - [x] IceWM start menu, toolbar, keybindings, window options (overlay)
 - [x] Desktop skel shortcuts: My Computer, Network, Recycle Bin
-- [ ] Live desktop boots correctly — pending first successful build
+- [ ] Live desktop boots correctly — test in VM next
 
 ### Phase 3 — Networking
 - [x] NetworkManager + nm-applet (in defconfigs)
