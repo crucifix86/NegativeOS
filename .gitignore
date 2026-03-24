@@ -1,0 +1,22 @@
+# Buildroot output
+output/
+
+# Buildroot downloaded sources
+dl/
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Build artifacts
+*.iso
+*.img
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+
+# OS
+.DS_Store

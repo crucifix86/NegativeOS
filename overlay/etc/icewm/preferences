@@ -1,0 +1,20 @@
+# NegativeOS IceWM preferences
+
+# Taskbar
+TaskBarShowClock=1
+TaskBarShowMailboxStatus=0
+TaskBarShowWorkspaces=1
+TaskBarShowWindows=1
+TaskBarShowCPUStatus=0
+TaskBarClockFormat="%H:%M"
+
+# Desktop
+DesktopBackgroundColor="#008080"
+DesktopBackgroundScaled=0
+
+# Window behavior
+FocusModel=ClickToFocus
+ClickToFocus=1
+
+# Start menu
+ShowProgramsMenu=1

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_NEGATIVEOS_BASE
+    bool "negativeos-base"
+    help
+      Meta-package for the full NegativeOS default desktop install.
+      Pulls in IceWM, core apps, networking, audio, and driver support.
