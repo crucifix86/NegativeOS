@@ -1,0 +1,4 @@
+# Don't commit VM disk images or OVMF vars (large + machine-specific)
+*.qcow2
+*.img
+OVMF_VARS*.fd
