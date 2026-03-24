@@ -1,0 +1,12 @@
+# Never commit the private signing key
+keys/*.rsa
+
+# Don't commit built packages (too large, regenerate from APKBUILDs)
+x86_64/*.apk
+x86/*.apk
+noarch/*.apk
+
+# Keep the index files if present
+!x86_64/APKINDEX.tar.gz
+!x86/APKINDEX.tar.gz
+!noarch/APKINDEX.tar.gz

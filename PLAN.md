@@ -301,7 +301,7 @@ ls output/x86_64/images/negativeos-x86_64.iso
 - [x] Logo icon: negativeos-logo.png (128x128) — Win95 raised button style, N on navy
 - [x] IceWM wired to wallpaper (DesktopBackgroundImage in preferences)
 - [x] SLiM theme wired to panel.png + background.png
-- [ ] apk package repo setup (self-hosted)
+- [x] apk package repo setup (apk-repo/ — setup, build, index, serve scripts)
 - [ ] i686 build + test
 - [ ] Verify x86_64 build output boots (waiting on running build)
 - [ ] Release i686 ISO + x86_64 ISO

@@ -1,0 +1,6 @@
+# NegativeOS APK Repositories
+# Official NegativeOS packages
+https://repo.negativeos.org/apk/x86_64
+
+# Uncomment for local/dev repo:
+# http://192.168.1.x:8080
