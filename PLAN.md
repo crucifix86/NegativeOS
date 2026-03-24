@@ -308,6 +308,16 @@ ls output/x86_64/images/negativeos-x86_64.iso
 
 ---
 
+## Physical Test Hardware
+
+| Machine | Arch | Firmware | Notes |
+|---------|------|----------|-------|
+| H95 Mini | **TBD — confirm not ARM** | UEFI | H95 may be Allwinner ARM — verify before test |
+| HP Laptop (XP/Vista era) | i686 or early x86_64 | Legacy BIOS | Reversible touchscreen, old WiFi — perfect i686 floor test |
+| 2013 iMac (Iris 5100) | x86_64 | Apple EFI | Hold Option to boot. Broadcom WiFi needs fw-brcm80211. May need rEFInd if GRUB EFI fails |
+
+---
+
 ## Key Notes
 
 - **Pale Moon**: User is considering developing/patching Pale Moon. Keep browser modular and easy to swap builds.
