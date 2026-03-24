@@ -9,8 +9,9 @@ TaskBarShowCPUStatus=0
 TaskBarClockFormat="%H:%M"
 
 # Desktop
+DesktopBackgroundImage="/usr/share/negativeos/wallpapers/wallpaper.png"
+DesktopBackgroundScaled=1
 DesktopBackgroundColor="#008080"
-DesktopBackgroundScaled=0
 
 # Window behavior
 FocusModel=ClickToFocus

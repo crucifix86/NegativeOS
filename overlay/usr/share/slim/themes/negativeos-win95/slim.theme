@@ -2,46 +2,43 @@
 # Images needed: background.png, panel.png
 # See theme/README for dimensions
 
-# Background — teal desktop (#008080) with optional wallpaper
-background_style    color
-background_color    #008080
+# Background
+background_style    stretch
+background_img      background.png
 
-# Login panel — centered Win95-style dialog box
-# Replace with panel.png once artwork is ready
+# Login panel — Win95 dialog box (420x220)
+panel_img           panel.png
 panel_x             50%
 panel_y             40%
 
-# Input fields — Win95 sunken style
+# Input fields — positioned to sit inside the drawn sunken boxes in panel.png
+# Panel is 420x220, centered on screen. Fields start at x=130 in panel coords.
 input_panel_x       50%
-input_panel_y       50%
-input_name_x        200
-input_name_y        30
-input_pass_x        200
-input_pass_y        60
-input_font          Tahoma:size=11
+input_panel_y       40%
+input_name_x        130
+input_name_y        96
+input_pass_x        130
+input_pass_y        130
+input_font          Sans:size=11
 input_color         #000000
 input_cursor_color  #000000
 
-# Labels
-username_font       Tahoma:size=11
-username_color      #000000
-username_x          120
-username_y          30
+# Labels (hidden — already drawn into panel.png)
+username_font       Sans:size=11
+username_color      #C0C0C0
+username_x          -999
+username_y          -999
 
-password_font       Tahoma:size=11
-password_color      #000000
-password_x          120
-password_y          60
+password_font       Sans:size=11
+password_color      #C0C0C0
+password_x          -999
+password_y          -999
 
-# Messages (error/welcome)
-msg_font            Tahoma:bold:size=11
-msg_color           #000080
+# Error/welcome messages
+msg_font            Sans:bold:size=11
+msg_color           #800000
 msg_x               50%
-msg_y               25%
-
-# Username pre-fill
-username_msg        User name:
-password_msg        Password:
+msg_y               30%
 
 # Welcome message
 welcome_msg         Welcome to NegativeOS

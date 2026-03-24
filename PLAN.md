@@ -290,13 +290,20 @@ ls output/x86_64/images/negativeos-x86_64.iso
 - [x] firstboot: hw-detect, update check, self-removing runit service
 - [x] Desktop installer launcher icon (Install NegativeOS on live desktop)
 
-### Phase 7 — Polish & Release
+### Phase 7 — Polish & Release ← IN PROGRESS
 - [x] SLiM Win95 theme config (overlay/usr/share/slim/themes/negativeos-win95/)
-- [ ] SLiM theme artwork (panel.png, background.png — Win95 dialog box style)
-- [ ] Boot splash (Plymouth or simple framebuffer)
-- [ ] Branding (wallpaper, NegativeOS logo)
+- [x] SLiM theme artwork — programmatically generated (branding/generate-assets.py)
+      - panel.png: Win95 dialog box (420x220) with title bar, input fields, OK button
+      - background.png: 1920x1080 teal desktop
+      - Replace with AI-generated artwork in future release
+- [x] Boot splash: bootsplash.png (800x600) — teal, logo, tagline, progress bar outline
+- [x] Wallpaper: wallpaper.png (1920x1080) — teal with scanline texture + NegativeOS wordmark
+- [x] Logo icon: negativeos-logo.png (128x128) — Win95 raised button style, N on navy
+- [x] IceWM wired to wallpaper (DesktopBackgroundImage in preferences)
+- [x] SLiM theme wired to panel.png + background.png
 - [ ] apk package repo setup (self-hosted)
 - [ ] i686 build + test
+- [ ] Verify x86_64 build output boots (waiting on running build)
 - [ ] Release i686 ISO + x86_64 ISO
 
 ---
