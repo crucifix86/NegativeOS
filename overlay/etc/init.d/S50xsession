@@ -1,0 +1,6 @@
+#!/bin/sh
+# Disabled — X is started from inittab on tty1
+case "$1" in
+    start|stop|restart) ;;
+    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+esac

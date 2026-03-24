@@ -51,4 +51,5 @@ qemu-system-x86_64 \
     -netdev user,id=net0 \
     -device virtio-rng-pci \
     -rtc base=localtime \
-    -usb -device usb-tablet
+    -usb -device usb-tablet \
+    -serial stdio

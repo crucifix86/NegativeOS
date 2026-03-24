@@ -1,0 +1,3 @@
+# NegativeOS Openbox autostart
+xsetroot -solid "#008080" &
+xterm &
