@@ -1,7 +1,8 @@
 # NegativeOS — Comprehensive Build Plan
 
 **Created:** 2026-03-24
-**Status:** Planning Phase
+**Last Updated:** 2026-03-24
+**Status:** Active Development — Phase 1 build running, Phases 2-5 code complete
 
 ---
 
@@ -241,46 +242,61 @@ ls output/x86_64/images/negativeos-x86_64.iso
 ## Build Phases
 
 ### Phase 1 — Base System
-- [ ] Set up Buildroot environment
-- [ ] Configure i686 + x86_64 toolchains (glibc)
-- [ ] Build minimal rootfs: kernel 6.12 LTS + BusyBox + runit
-- [ ] Bootable console-only ISO (BIOS + UEFI hybrid)
+- [x] Set up Buildroot environment (Buildroot 2024.11, BR2_EXTERNAL wired up)
+- [x] Configure i686 + x86_64 toolchains (glibc, configs written)
+- [x] Build minimal rootfs: kernel 6.12 LTS + BusyBox + runit (BUILD RUNNING)
+- [ ] Bootable console-only ISO (BIOS + UEFI hybrid) — waiting on build output
 - [ ] Verify boots on P4 test hardware
 
 ### Phase 2 — Desktop Layer
-- [ ] Add Xorg + IceWM + SLiM
-- [ ] Apply Win95 theme as default
-- [ ] Add PCManFM, urxvt, Mousepad, gpicview, xarchiver
-- [ ] Add PipeWire audio
-- [ ] Live desktop boots correctly
+- [x] Add Xorg + IceWM + SLiM (in defconfigs)
+- [x] Apply Win95 theme as default (overlay/etc/icewm/theme + preferences)
+- [x] Add PCManFM, urxvt, Mousepad, gpicview, xarchiver (in defconfigs)
+- [x] Add PipeWire audio (in defconfigs)
+- [x] IceWM start menu, toolbar, keybindings, window options (overlay)
+- [x] Desktop skel shortcuts: My Computer, Network, Recycle Bin
+- [ ] Live desktop boots correctly — pending first successful build
 
 ### Phase 3 — Networking
-- [ ] NetworkManager + nm-applet
-- [ ] avahi-daemon (zeroconf discovery)
-- [ ] samba + gvfs-smb (Windows share browsing)
+- [x] NetworkManager + nm-applet (in defconfigs)
+- [x] avahi-daemon (in defconfigs)
+- [x] samba + gvfs-smb (in defconfigs)
 - [ ] Verify network tray icon works on live boot
 
 ### Phase 4 — Browser
-- [ ] Package Pale Moon for i686 + x86_64
-- [ ] Set as default browser
-- [ ] Pale Moon dev notes: user may develop/patch Pale Moon directly
+- [x] Pale Moon Buildroot package (package/palemoon/) — binary, arch-aware i686/x86_64
+- [x] Pale Moon apk APKBUILD (apk-packages/palemoon/)
+- [x] Pale Moon build-from-source.sh for dev/patching work
+- [x] Set as default browser via /etc/alternatives symlink
+- [ ] Verify Pale Moon launches correctly on live boot
 
 ### Phase 5 — Driver Support
-- [ ] Bundle linux-firmware + firmware-linux-nonfree
-- [ ] Include ndiswrapper
-- [ ] First-boot hardware detection script (maps PCI/USB IDs to firmware packages)
+- [x] linux-firmware + ndiswrapper in defconfigs
+- [x] hw-detect.sh: PCI/USB scan → firmware package install (overlay/usr/share/negativeos/scripts/)
+- [x] runit service for hw-detect (runs once on first boot, self-removes)
+- [x] Covers: WiFi (Broadcom/Intel/Atheros/Realtek/MediaTek), GPU (Intel/NVIDIA/AMD/VIA/S3), audio, USB
 - [ ] Test on varied old hardware
 
-### Phase 6 — Installer
-- [ ] Build text or simple GTK installer
-- [ ] Auto-detect UEFI vs BIOS
-- [ ] Partition, format, install, configure GRUB
-- [ ] First-boot wizard (locale, user, hostname)
+### Phase 6 — Installer ✓ COMPLETE
+- [x] Shell installer script (overlay/usr/sbin/negativeos-install)
+- [x] Auto-detect UEFI vs BIOS via /sys/firmware/efi
+- [x] Partition + format: GPT+ESP for UEFI, MBR for legacy BIOS
+- [x] Handles nvme/mmcblk/sda partition naming automatically
+- [x] Install rootfs via unsquashfs
+- [x] Configures hostname, fstab (UUID-based), timezone, /etc/hosts
+- [x] Creates user + sets password via chroot
+- [x] Installs GRUB (EFI or i386-pc) + generates grub.cfg
+- [x] First-boot wizard (overlay/usr/share/negativeos/scripts/firstboot.sh)
+- [x] firstboot: hw-detect, update check, self-removing runit service
+- [x] Desktop installer launcher icon (Install NegativeOS on live desktop)
 
 ### Phase 7 — Polish & Release
-- [ ] Custom SLiM login theme (Win9x style)
-- [ ] Branding (wallpaper, boot splash, icons)
-- [ ] Package repo setup (apk)
+- [x] SLiM Win95 theme config (overlay/usr/share/slim/themes/negativeos-win95/)
+- [ ] SLiM theme artwork (panel.png, background.png — Win95 dialog box style)
+- [ ] Boot splash (Plymouth or simple framebuffer)
+- [ ] Branding (wallpaper, NegativeOS logo)
+- [ ] apk package repo setup (self-hosted)
+- [ ] i686 build + test
 - [ ] Release i686 ISO + x86_64 ISO
 
 ---

@@ -1,0 +1,387 @@
+#!/bin/sh
+# NegativeOS Installer
+# Text-based, dialog(1)-driven
+# Auto-detects UEFI vs BIOS, partitions accordingly, installs, configures GRUB
+
+set -e
+
+INSTALLER_VERSION="1.0"
+SQUASHFS="/live/filesystem.squashfs"
+LOG="/tmp/negativeos-install.log"
+DIALOG="dialog"
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+log() { echo "[$(date +%H:%M:%S)] $*" >> "$LOG"; }
+
+die() {
+    log "FATAL: $*"
+    $DIALOG --title "Installation Failed" --msgbox "\nFATAL ERROR:\n\n$*\n\nCheck $LOG for details." 12 60
+    exit 1
+}
+
+is_uefi() {
+    [ -d /sys/firmware/efi ]
+}
+
+hr() { echo "────────────────────────────────────────────────────────────"; }
+
+# ── Welcome ───────────────────────────────────────────────────────────────────
+
+welcome() {
+    $DIALOG --title "NegativeOS Installer v${INSTALLER_VERSION}" \
+        --yesno "\nWelcome to NegativeOS.\n\nThis installer will:\n\n  • Partition your selected disk\n  • Install NegativeOS\n  • Configure the bootloader\n  • Set up your user account\n\nWARNING: The selected disk will be ERASED.\n\nContinue?" \
+        16 60 || exit 0
+}
+
+# ── Disk selection ────────────────────────────────────────────────────────────
+
+select_disk() {
+    log "Detecting disks..."
+
+    # Build disk list for dialog
+    DISKS=""
+    for disk in /sys/block/sd* /sys/block/nvme* /sys/block/vd* /sys/block/mmcblk*; do
+        [ -e "$disk" ] || continue
+        DEV=$(basename "$disk")
+        SIZE=$(awk '{printf "%.0fG", $1/2/1024/1024}' "$disk/size" 2>/dev/null || echo "?")
+        MODEL=$(cat "$disk/device/model" 2>/dev/null | tr -d ' ' || echo "Unknown")
+        DISKS="$DISKS /dev/$DEV \"$MODEL ($SIZE)\" off"
+    done
+
+    [ -z "$DISKS" ] && die "No disks found."
+
+    DISK=$(eval $DIALOG --title "Select Installation Disk" \
+        --radiolist "\nChoose the disk to install NegativeOS on.\nAll data will be erased.\n" \
+        16 60 6 $DISKS \
+        3>&1 1>&2 2>&3) || exit 0
+
+    [ -z "$DISK" ] && die "No disk selected."
+    log "Selected disk: $DISK"
+}
+
+# ── Hostname ──────────────────────────────────────────────────────────────────
+
+get_hostname() {
+    HOSTNAME=$(
+        $DIALOG --title "Computer Name" \
+            --inputbox "\nEnter a name for this computer:\n" \
+            9 50 "negativeos" \
+            3>&1 1>&2 2>&3
+    ) || exit 0
+    [ -z "$HOSTNAME" ] && HOSTNAME="negativeos"
+    log "Hostname: $HOSTNAME"
+}
+
+# ── User account ──────────────────────────────────────────────────────────────
+
+get_user() {
+    USERNAME=$(
+        $DIALOG --title "Create User Account" \
+            --inputbox "\nEnter your username (lowercase, no spaces):\n" \
+            9 50 \
+            3>&1 1>&2 2>&3
+    ) || exit 0
+    [ -z "$USERNAME" ] && die "No username entered."
+
+    # Basic validation
+    echo "$USERNAME" | grep -qE '^[a-z][a-z0-9_-]{0,31}$' || \
+        die "Invalid username. Use lowercase letters, numbers, _ or - only."
+
+    # Password
+    while true; do
+        PASS1=$(
+            $DIALOG --title "Set Password" \
+                --passwordbox "\nPassword for $USERNAME:\n" \
+                9 50 \
+                3>&1 1>&2 2>&3
+        ) || exit 0
+
+        PASS2=$(
+            $DIALOG --title "Confirm Password" \
+                --passwordbox "\nConfirm password:\n" \
+                9 50 \
+                3>&1 1>&2 2>&3
+        ) || exit 0
+
+        [ "$PASS1" = "$PASS2" ] && break
+        $DIALOG --title "Password Mismatch" \
+            --msgbox "\nPasswords do not match. Try again." 7 40
+    done
+
+    PASSWORD="$PASS1"
+    log "User: $USERNAME"
+}
+
+# ── Locale / Timezone ─────────────────────────────────────────────────────────
+
+get_locale() {
+    TIMEZONE=$(
+        $DIALOG --title "Timezone" \
+            --inputbox "\nEnter your timezone (e.g. America/New_York, Europe/London):\nSee: /usr/share/zoneinfo/\n" \
+            10 55 "UTC" \
+            3>&1 1>&2 2>&3
+    ) || TIMEZONE="UTC"
+    log "Timezone: $TIMEZONE"
+}
+
+# ── Confirm ───────────────────────────────────────────────────────────────────
+
+confirm_install() {
+    if is_uefi; then
+        BOOT_MODE="UEFI (GPT + ESP)"
+    else
+        BOOT_MODE="Legacy BIOS (MBR)"
+    fi
+
+    $DIALOG --title "Confirm Installation" \
+        --yesno "\nReady to install NegativeOS:\n\n  Disk     : $DISK\n  Boot     : $BOOT_MODE\n  Hostname : $HOSTNAME\n  User     : $USERNAME\n  Timezone : $TIMEZONE\n\nTHIS WILL ERASE $DISK.\n\nProceed?" \
+        17 55 || exit 0
+}
+
+# ── Partitioning ──────────────────────────────────────────────────────────────
+
+partition_disk() {
+    log "Partitioning $DISK ($(is_uefi && echo UEFI || echo BIOS))..."
+
+    # Wipe existing partition table
+    wipefs -a "$DISK" >> "$LOG" 2>&1
+    dd if=/dev/zero of="$DISK" bs=1M count=10 >> "$LOG" 2>&1
+
+    if is_uefi; then
+        log "Creating GPT layout (UEFI)"
+        parted -s "$DISK" \
+            mklabel gpt \
+            mkpart ESP fat32 1MiB 513MiB \
+            set 1 esp on \
+            mkpart boot ext4 513MiB 1025MiB \
+            mkpart root ext4 1025MiB 100% \
+            >> "$LOG" 2>&1
+
+        # Resolve partition names (nvme uses p1, p2; sda uses 1, 2)
+        if echo "$DISK" | grep -q "nvme\|mmcblk"; then
+            PART_ESP="${DISK}p1"
+            PART_BOOT="${DISK}p2"
+            PART_ROOT="${DISK}p3"
+        else
+            PART_ESP="${DISK}1"
+            PART_BOOT="${DISK}2"
+            PART_ROOT="${DISK}3"
+        fi
+
+        log "Formatting ESP: $PART_ESP"
+        mkfs.fat -F32 -n ESP "$PART_ESP" >> "$LOG" 2>&1
+
+    else
+        log "Creating MBR layout (legacy BIOS)"
+        parted -s "$DISK" \
+            mklabel msdos \
+            mkpart primary ext4 1MiB 513MiB \
+            set 1 boot on \
+            mkpart primary ext4 513MiB 100% \
+            >> "$LOG" 2>&1
+
+        if echo "$DISK" | grep -q "nvme\|mmcblk"; then
+            PART_BOOT="${DISK}p1"
+            PART_ROOT="${DISK}p2"
+        else
+            PART_BOOT="${DISK}1"
+            PART_ROOT="${DISK}2"
+        fi
+    fi
+
+    log "Formatting /boot: $PART_BOOT"
+    mkfs.ext4 -L boot "$PART_BOOT" >> "$LOG" 2>&1
+
+    log "Formatting /: $PART_ROOT"
+    mkfs.ext4 -L NegativeOS "$PART_ROOT" >> "$LOG" 2>&1
+
+    log "Partitioning complete."
+}
+
+# ── Mount ─────────────────────────────────────────────────────────────────────
+
+mount_target() {
+    TARGET="/mnt/negativeos-install"
+    log "Mounting target at $TARGET..."
+
+    mkdir -p "$TARGET"
+    mount "$PART_ROOT" "$TARGET"
+    mkdir -p "$TARGET/boot"
+    mount "$PART_BOOT" "$TARGET/boot"
+
+    if is_uefi; then
+        mkdir -p "$TARGET/boot/efi"
+        mount "$PART_ESP" "$TARGET/boot/efi"
+    fi
+}
+
+# ── Install rootfs ────────────────────────────────────────────────────────────
+
+install_rootfs() {
+    log "Installing rootfs from $SQUASHFS..."
+
+    $DIALOG --title "Installing NegativeOS" \
+        --infobox "\nUnpacking system files...\nThis may take a few minutes.\n" 7 45
+
+    [ -f "$SQUASHFS" ] || die "Squashfs not found at $SQUASHFS"
+
+    unsquashfs -f -d "$TARGET" "$SQUASHFS" >> "$LOG" 2>&1 || \
+        die "Failed to unpack filesystem"
+
+    log "Rootfs installed."
+}
+
+# ── System configuration ──────────────────────────────────────────────────────
+
+configure_system() {
+    log "Configuring system..."
+
+    # Hostname
+    echo "$HOSTNAME" > "$TARGET/etc/hostname"
+    cat > "$TARGET/etc/hosts" <<EOF
+127.0.0.1   localhost
+127.0.1.1   $HOSTNAME
+::1         localhost ip6-localhost ip6-loopback
+EOF
+
+    # Timezone
+    if [ -f "$TARGET/usr/share/zoneinfo/$TIMEZONE" ]; then
+        cp "$TARGET/usr/share/zoneinfo/$TIMEZONE" "$TARGET/etc/localtime"
+        echo "$TIMEZONE" > "$TARGET/etc/timezone"
+    else
+        log "WARNING: Timezone $TIMEZONE not found, defaulting to UTC"
+        cp "$TARGET/usr/share/zoneinfo/UTC" "$TARGET/etc/localtime"
+    fi
+
+    # fstab
+    ROOT_UUID=$(blkid -s UUID -o value "$PART_ROOT")
+    BOOT_UUID=$(blkid -s UUID -o value "$PART_BOOT")
+
+    cat > "$TARGET/etc/fstab" <<EOF
+# NegativeOS fstab
+UUID=$ROOT_UUID  /       ext4  defaults,noatime  0 1
+UUID=$BOOT_UUID  /boot   ext4  defaults,noatime  0 2
+EOF
+
+    if is_uefi; then
+        ESP_UUID=$(blkid -s UUID -o value "$PART_ESP")
+        echo "UUID=$ESP_UUID  /boot/efi  vfat  umask=0077  0 2" >> "$TARGET/etc/fstab"
+    fi
+
+    # tmpfs
+    echo "tmpfs  /tmp  tmpfs  defaults,nosuid,nodev  0 0" >> "$TARGET/etc/fstab"
+
+    log "System configuration done."
+}
+
+# ── User creation ─────────────────────────────────────────────────────────────
+
+create_user() {
+    log "Creating user $USERNAME..."
+
+    # Bind mounts for chroot
+    mount --bind /proc "$TARGET/proc"
+    mount --bind /sys  "$TARGET/sys"
+    mount --bind /dev  "$TARGET/dev"
+
+    # Set root password to same as user (user can change later)
+    chroot "$TARGET" /bin/sh -c "echo 'root:${PASSWORD}' | chpasswd"
+
+    # Create user
+    chroot "$TARGET" /bin/sh -c "
+        adduser -D -s /bin/sh -G wheel,audio,video,cdrom,usb,plugdev '$USERNAME'
+        echo '${USERNAME}:${PASSWORD}' | chpasswd
+    "
+
+    # Copy skel (desktop shortcuts etc.)
+    cp -r "$TARGET/etc/skel/." "$TARGET/home/$USERNAME/"
+    chroot "$TARGET" /bin/sh -c "chown -R '${USERNAME}:${USERNAME}' '/home/${USERNAME}'"
+
+    log "User created."
+}
+
+# ── Bootloader ────────────────────────────────────────────────────────────────
+
+install_bootloader() {
+    log "Installing GRUB..."
+
+    if is_uefi; then
+        log "GRUB EFI install"
+        chroot "$TARGET" /bin/sh -c "
+            grub-install --target=x86_64-efi \
+                --efi-directory=/boot/efi \
+                --bootloader-id=NegativeOS \
+                --recheck
+        " >> "$LOG" 2>&1 || die "GRUB EFI install failed"
+    else
+        log "GRUB BIOS install to $DISK"
+        chroot "$TARGET" /bin/sh -c "
+            grub-install --target=i386-pc \
+                --recheck '$DISK'
+        " >> "$LOG" 2>&1 || die "GRUB BIOS install failed"
+    fi
+
+    # Generate grub.cfg
+    chroot "$TARGET" /bin/sh -c "grub-mkconfig -o /boot/grub/grub.cfg" >> "$LOG" 2>&1
+
+    log "Bootloader installed."
+}
+
+# ── Cleanup ───────────────────────────────────────────────────────────────────
+
+cleanup() {
+    log "Cleaning up mounts..."
+    umount -l "$TARGET/proc" 2>/dev/null || true
+    umount -l "$TARGET/sys"  2>/dev/null || true
+    umount -l "$TARGET/dev"  2>/dev/null || true
+    is_uefi && umount -l "$TARGET/boot/efi" 2>/dev/null || true
+    umount -l "$TARGET/boot" 2>/dev/null || true
+    umount -l "$TARGET"      2>/dev/null || true
+}
+
+# ── Done ──────────────────────────────────────────────────────────────────────
+
+finish() {
+    $DIALOG --title "Installation Complete" \
+        --msgbox "\nNegativeOS has been installed successfully!\n\nUser     : $USERNAME\nHostname : $HOSTNAME\nDisk     : $DISK\n\nRemove the live media and reboot.\n" \
+        14 55
+
+    $DIALOG --title "Reboot?" \
+        --yesno "\nReboot now?" 7 30 && reboot || true
+}
+
+# ── Progress wrapper ──────────────────────────────────────────────────────────
+
+run_step() {
+    LABEL="$1"
+    FUNC="$2"
+    log "Step: $LABEL"
+    $DIALOG --title "Installing NegativeOS" \
+        --infobox "\n  $LABEL...\n" 6 50
+    $FUNC || die "$LABEL failed — check $LOG"
+}
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+trap cleanup EXIT
+
+clear
+log "NegativeOS installer started ($(is_uefi && echo UEFI || echo BIOS))"
+
+welcome
+select_disk
+get_hostname
+get_user
+get_locale
+confirm_install
+
+run_step "Partitioning disk"       partition_disk
+run_step "Mounting target"         mount_target
+run_step "Installing system files" install_rootfs
+run_step "Configuring system"      configure_system
+run_step "Creating user account"   create_user
+run_step "Installing bootloader"   install_bootloader
+
+cleanup
+finish

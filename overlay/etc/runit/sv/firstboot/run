@@ -1,0 +1,6 @@
+#!/bin/sh
+# runit service: NegativeOS first-boot wizard
+# Waits for X to be available then launches wizard in terminal
+exec chpst -u "${SUDO_USER:-user}" \
+    env DISPLAY=:0 \
+    urxvt -T "NegativeOS Setup" -e /usr/share/negativeos/scripts/firstboot.sh

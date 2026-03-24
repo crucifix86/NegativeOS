@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install NegativeOS
+Comment=Install NegativeOS to your hard drive
+Exec=urxvt -T "NegativeOS Installer" -e sudo negativeos-install
+Icon=system-installer
+Terminal=false
+Categories=System;
