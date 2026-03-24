@@ -1,0 +1,16 @@
+# NegativeOS IceWM keybindings
+
+# Win95-era muscle memory
+key "Alt+F4"          close
+key "Alt+Tab"         nextWindow
+key "Alt+Shift+Tab"   prevWindow
+
+# Launch shortcuts
+key "Super_L"         icewm-menu-fdo
+key "Ctrl+Alt+t"      urxvt
+key "Ctrl+Alt+f"      pcmanfm
+key "Ctrl+Alt+b"      palemoon
+
+# Screenshots
+key "Print"           scrot '%Y-%m-%d_%H-%M-%S.png' -e 'mv $f ~/Pictures/'
+key "Alt+Print"       scrot -u '%Y-%m-%d_%H-%M-%S.png' -e 'mv $f ~/Pictures/'

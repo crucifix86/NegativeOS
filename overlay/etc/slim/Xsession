@@ -1,0 +1,21 @@
+#!/bin/bash
+# NegativeOS X session startup
+
+# Source user profile
+[ -f /etc/profile ] && . /etc/profile
+[ -f ~/.bash_profile ] && . ~/.bash_profile
+[ -f ~/.profile ] && . ~/.profile
+
+# Session selection from SLiM
+case "$1" in
+    icewm)
+        exec icewm-session
+        ;;
+    openbox)
+        exec openbox-session
+        ;;
+    *)
+        # Default: IceWM
+        exec icewm-session
+        ;;
+esac

@@ -1,0 +1,47 @@
+# NegativeOS SLiM theme — Windows 95/98 style
+# Images needed: background.png, panel.png
+# See theme/README for dimensions
+
+# Background — teal desktop (#008080) with optional wallpaper
+background_style    color
+background_color    #008080
+
+# Login panel — centered Win95-style dialog box
+# Replace with panel.png once artwork is ready
+panel_x             50%
+panel_y             40%
+
+# Input fields — Win95 sunken style
+input_panel_x       50%
+input_panel_y       50%
+input_name_x        200
+input_name_y        30
+input_pass_x        200
+input_pass_y        60
+input_font          Tahoma:size=11
+input_color         #000000
+input_cursor_color  #000000
+
+# Labels
+username_font       Tahoma:size=11
+username_color      #000000
+username_x          120
+username_y          30
+
+password_font       Tahoma:size=11
+password_color      #000000
+password_x          120
+password_y          60
+
+# Messages (error/welcome)
+msg_font            Tahoma:bold:size=11
+msg_color           #000080
+msg_x               50%
+msg_y               25%
+
+# Username pre-fill
+username_msg        User name:
+password_msg        Password:
+
+# Welcome message
+welcome_msg         Welcome to NegativeOS

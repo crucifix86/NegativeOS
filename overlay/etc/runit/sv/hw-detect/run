@@ -1,0 +1,3 @@
+#!/bin/sh
+# runit service: NegativeOS hardware detection (runs once on first boot)
+exec /usr/share/negativeos/scripts/hw-detect.sh

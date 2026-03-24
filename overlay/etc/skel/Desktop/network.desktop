@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Network
+Exec=pcmanfm network://
+Icon=network-workgroup
+Terminal=false

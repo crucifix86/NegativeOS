@@ -1,0 +1,15 @@
+# NegativeOS IceWM window options
+# Per-application window behavior
+
+# Keep terminal windows normal
+urxvt.allWorkspaces: 0
+
+# Pale Moon — no forced sizing
+palemoon.ignorePositionHint: 0
+
+# PCManFM — open centered
+pcmanfm.startFullscreen: 0
+
+# Slim (login screen) — fullscreen, no decorations
+slim.layer: Below
+slim.ignoreTaskBar: 1

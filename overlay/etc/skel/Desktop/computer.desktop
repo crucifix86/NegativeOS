@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=My Computer
+Exec=pcmanfm /
+Icon=computer
+Terminal=false

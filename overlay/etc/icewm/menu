@@ -1,0 +1,41 @@
+# NegativeOS IceWM Start Menu
+# Win95/98 style layout
+
+menu "Programs" folder {
+    menu "Internet" folder {
+        prog "Pale Moon"    /usr/share/pixmaps/palemoon.png       palemoon
+    }
+
+    menu "Accessories" folder {
+        prog "Text Editor"  /usr/share/pixmaps/mousepad.png       mousepad
+        prog "Image Viewer" /usr/share/pixmaps/gpicview.png       gpicview
+        prog "Archive Mgr"  /usr/share/pixmaps/xarchiver.png      xarchiver
+        prog "Terminal"     /usr/share/pixmaps/urxvt.png          urxvt
+    }
+
+    menu "System" folder {
+        prog "File Manager" /usr/share/pixmaps/pcmanfm.png        pcmanfm
+        prog "Task Manager" /usr/share/pixmaps/htop.png           urxvt -e htop
+        prog "Network"      /usr/share/pixmaps/nm-applet.png      nm-connection-editor
+        prog "Run..."       /usr/share/pixmaps/run.png            icewm-menu-fdo
+    }
+}
+
+separator
+
+menu "Settings" folder {
+    prog "Preferences"          /usr/share/pixmaps/icewm.png      icewm-menu-fdo
+    prog "Display Settings"     /usr/share/pixmaps/display.png    arandr
+    prog "Audio Mixer"          /usr/share/pixmaps/audio.png      pavucontrol
+}
+
+separator
+
+prog "Terminal"     /usr/share/pixmaps/urxvt.png    urxvt
+prog "File Manager" /usr/share/pixmaps/pcmanfm.png  pcmanfm
+prog "Pale Moon"    /usr/share/pixmaps/palemoon.png  palemoon
+
+separator
+
+prog "Lock Screen"  /usr/share/pixmaps/lock.png     slimlock
+prog "Log Out"      /usr/share/pixmaps/logout.png   icewm --logout

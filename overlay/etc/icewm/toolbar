@@ -1,0 +1,6 @@
+# NegativeOS IceWM Quick Launch toolbar
+# Icons that appear next to the Start button
+
+prog "File Manager" /usr/share/pixmaps/pcmanfm.png   pcmanfm
+prog "Terminal"     /usr/share/pixmaps/urxvt.png     urxvt
+prog "Pale Moon"    /usr/share/pixmaps/palemoon.png   palemoon

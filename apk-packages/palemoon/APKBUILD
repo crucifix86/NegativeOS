@@ -1,0 +1,46 @@
+# Maintainer: NegativeOS Project
+# Pale Moon Browser
+# To update: bump pkgver, update sha512sums below
+
+pkgname=palemoon
+pkgver=33.5.0
+pkgrel=0
+pkgdesc="Pale Moon web browser - Firefox-based, i686 and x86_64 Linux builds"
+url="https://www.palemoon.org"
+arch="x86 x86_64"
+license="MPL-2.0"
+depends="gtk+3.0 libxt"
+options="!strip"  # pre-built binary, do not strip
+
+# Architecture-specific sources
+case "$CARCH" in
+    x86_64) _arch="x86_64" ;;
+    x86)    _arch="i686"   ;;
+esac
+
+source="palemoon-${pkgver}.linux-${_arch}.tar.xz"
+
+# Update checksums after bumping version:
+#   sha512sum palemoon-*.tar.xz
+sha512sums="
+REPLACE_WITH_ACTUAL_SHA512  palemoon-${pkgver}.linux-x86_64.tar.xz
+REPLACE_WITH_ACTUAL_SHA512  palemoon-${pkgver}.linux-i686.tar.xz
+"
+
+package() {
+    # Install browser
+    install -d "$pkgdir"/opt/palemoon
+    cp -r "$srcdir"/palemoon/* "$pkgdir"/opt/palemoon/
+
+    # Symlink to PATH
+    install -d "$pkgdir"/usr/bin
+    ln -sf /opt/palemoon/palemoon "$pkgdir"/usr/bin/palemoon
+
+    # Desktop entry
+    install -Dm644 "$srcdir"/../palemoon.desktop \
+        "$pkgdir"/usr/share/applications/palemoon.desktop
+
+    # Icons
+    install -Dm644 "$pkgdir"/opt/palemoon/browser/icons/mozicon128.png \
+        "$pkgdir"/usr/share/pixmaps/palemoon.png
+}

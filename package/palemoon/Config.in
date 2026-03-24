@@ -1,0 +1,13 @@
+config BR2_PACKAGE_PALEMOON
+    bool "palemoon"
+    depends on BR2_i386 || BR2_x86_64
+    depends on BR2_INSTALL_LIBSTDCPP
+    select BR2_PACKAGE_GTK3
+    select BR2_PACKAGE_LIBGTK2
+    select BR2_PACKAGE_XLIB_LIBX11
+    select BR2_PACKAGE_XLIB_LIBXT
+    help
+      Pale Moon web browser — Firefox-based, ships official i686
+      and x86_64 Linux builds. Default browser for NegativeOS.
+
+      https://www.palemoon.org

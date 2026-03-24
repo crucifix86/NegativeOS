@@ -18,6 +18,7 @@ NEGATIVEOS_BASE_DEPENDENCIES = \
     mousepad \
     gpicview \
     xarchiver \
+    palemoon \
     networkmanager \
     avahi \
     pipewire \
